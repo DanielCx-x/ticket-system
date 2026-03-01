@@ -1,0 +1,30 @@
+﻿server:
+  port: 8080
+
+spring:
+  application:
+    name: ticket-server
+  profiles:
+    active: dev
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+
+ticket:
+  jwt:
+    # user-secret-key: ${TICKET_USER_SECRET:replace-with-user-secret}
+    user-secret-key: dev-user-secret
+    user-ttl: 7200000
+    user-token-name: user-token
+    # admin-secret-key: ${TICKET_ADMIN_SECRET:replace-with-admin-secret}
+    admin-secret-key: dev-admin-secret
+    admin-ttl: 7200000
+    admin-token-name: admin-token

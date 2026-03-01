@@ -1,0 +1,38 @@
+# --- Maven ---
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# --- IntelliJ IDEA ---
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# --- Eclipse ---
+.classpath
+.project
+.settings/
+.springBeans
+
+# --- VS Code ---
+.vscode/
+
+# --- Logs ---
+logs/
+*.log
+
+# --- OS Generated ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# --- Spring Boot / Java ---
+help.md
+*.class
+*.jar
+*.war
