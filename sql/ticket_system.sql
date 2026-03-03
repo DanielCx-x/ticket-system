@@ -1,4 +1,9 @@
 -- ticket-system/sql/ticket_system.sql
+CREATE DATABASE IF NOT EXISTS ticket_system DEFAULT CHARSET utf8mb4;
+USE ticket_system;
+
+-- 文件路径: ticket-system/sql/ticket_system.sql
+...
 
 -- ----------------------------
 -- 1. 演出活动表
