@@ -3,6 +3,7 @@ package com.ticket.controller.user;
 import com.ticket.result.Result;
 import com.ticket.service.EventService;
 import com.ticket.vo.EventVO;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,16 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user/events")
 @RequiredArgsConstructor
 public class EventController {
+
     private final EventService eventService;
 
-    /**
-     * 根据活动ID获取详情
-     * @param id 活动ID
-     * @return 活动详情视图对象
-     */
+    @GetMapping
+    public Result<List<EventVO>> list() {
+        return Result.success(eventService.list());
+    }
+
     @GetMapping("/{id}")
     public Result<EventVO> getEventDetail(@PathVariable Long id) {
-        EventVO eventVO = eventService.getEventDetail(id);
-        return Result.success(eventVO);
+        return Result.success(eventService.getEventDetail(id));
     }
 }

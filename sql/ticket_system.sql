@@ -1,13 +1,7 @@
--- ticket-system/sql/ticket_system.sql
 CREATE DATABASE IF NOT EXISTS ticket_system DEFAULT CHARSET utf8mb4;
 USE ticket_system;
 
--- 文件路径: ticket-system/sql/ticket_system.sql
-...
-
--- ----------------------------
 -- 1. 演出活动表
--- ----------------------------
 DROP TABLE IF EXISTS `event`;
 CREATE TABLE `event` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -21,9 +15,7 @@ CREATE TABLE `event` (
 INSERT INTO `event` (`name`, `venue`, `show_time`, `status`)
 VALUES ('张学友 60+ 巡回演唱会', '北京凯迪拉克中心', '2026-12-31 19:30:00', 1);
 
--- ----------------------------
 -- 2. 票档库存表
--- ----------------------------
 DROP TABLE IF EXISTS `ticket_tier`;
 CREATE TABLE `ticket_tier` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -41,9 +33,7 @@ INSERT INTO `ticket_tier` (`event_id`, `tier_name`, `price`, `total_stock`, `ava
 VALUES (1, '内场 VIP 区', 2580.00, 500, 500),
        (1, '看台 A 区', 1280.00, 2000, 2000);
 
--- ----------------------------
 -- 3. 票务订单表
--- ----------------------------
 DROP TABLE IF EXISTS `ticket_order`;
 CREATE TABLE `ticket_order` (
   `id` bigint NOT NULL AUTO_INCREMENT,
