@@ -4,6 +4,8 @@ import com.ticket.entity.TicketTier;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import java.util.List;
+
 
 @Mapper
 public interface TicketTierMapper {
@@ -14,6 +16,13 @@ public interface TicketTierMapper {
     @Select("select id, event_id, tier_name, price, total_stock, available_stock, version " +
             "from ticket_tier where id = #{id}")
     TicketTier getById(Long id);
+
+    /**
+     * 查询指定活动下的票档列表
+     */
+    @Select("select id, event_id, tier_name, price, total_stock, available_stock, version " +
+            "from ticket_tier where event_id = #{eventId} order by price desc")
+    List<TicketTier> listByEventId(Long eventId);
 
     /**
      * 扣减库存
