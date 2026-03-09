@@ -36,17 +36,19 @@ VALUES (1, '内场 VIP 区', 2580.00, 500, 500),
 -- 3. 票务订单表
 DROP TABLE IF EXISTS `ticket_order`;
 CREATE TABLE `ticket_order` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '订单主键ID',
   `order_no` varchar(64) NOT NULL COMMENT '全局唯一订单号',
   `user_id` bigint NOT NULL COMMENT '购票用户ID',
   `event_id` bigint NOT NULL COMMENT '演出ID',
   `ticket_tier_id` bigint NOT NULL COMMENT '票档ID',
   `ticket_count` int NOT NULL COMMENT '购票数量',
   `amount` decimal(10,2) NOT NULL COMMENT '订单总金额',
-  `status` varchar(32) NOT NULL COMMENT '订单状态：INIT, QUEUED, CONFIRMED, PAID, FAILED, CANCELLED',
+  `status` varchar(32) NOT NULL COMMENT '订单状态',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_order_no` (`order_no`),
-  KEY `idx_user_id` (`user_id`)
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_event_id` (`event_id`),
+  KEY `idx_ticket_tier_id` (`ticket_tier_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='票务订单表';
