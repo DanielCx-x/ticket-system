@@ -44,6 +44,10 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw new BaseException("票档不存在");
         }
 
+        if (!ticketTier.getEventId().equals(ticketOrderSubmitDTO.getEventId())) {
+            throw new BaseException("票档与活动信息不一致");
+        }
+
         int rows = ticketTierMapper.deductStock(ticketTier.getId(), ticketOrderSubmitDTO.getTicketCount());
         if (rows == 0) {
             throw new StockNotEnoughException("库存不足");
