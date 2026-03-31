@@ -10,6 +10,7 @@ import com.ticket.mapper.TicketOrderMapper;
 import com.ticket.mapper.TicketTierMapper;
 import com.ticket.service.TicketOrderService;
 import com.ticket.vo.OrderSubmitVO;
+import com.ticket.vo.OrderDetailVO;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +64,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
         TicketOrder ticketOrder = TicketOrder.builder()
                 .orderNo(orderNo)
                 .userId(ticketOrderSubmitDTO.getUserId())
-                .eventId(ticketOrderSubmitDTO.getEventId())
+                .eventId(ticketTier.getEventId())
                 .ticketTierId(ticketOrderSubmitDTO.getTicketTierId())
                 .ticketCount(ticketOrderSubmitDTO.getTicketCount())
                 .amount(amount)
@@ -79,5 +80,24 @@ public class TicketOrderServiceImpl implements TicketOrderService {
                 .orderStatus(OrderStateEnum.CONFIRMED.name())
                 .amount(amount)
                 .build();
+    }
+
+    @Override
+    public OrderDetailVO getByOrderNo(String orderNo) {
+        TicketOrder ticketOrder = ticketOrderMapper.getByOrderNo(orderNo);
+        if (ticketOrder == null) {
+            throw new BaseException("订单不存在");
+        }
+
+        return OrderDetailVO.builder()
+            .orderNo(ticketOrder.getOrderNo())
+            .userId(ticketOrder.getUserId())
+            .eventId(ticketOrder.getEventId())
+            .ticketTierId(ticketOrder.getTicketTierId())
+            .ticketCount(ticketOrder.getTicketCount())
+            .amount(ticketOrder.getAmount())
+            .orderStatus(ticketOrder.getStatus().name())
+            .createTime(ticketOrder.getCreateTime())
+            .build();
     }
 }
