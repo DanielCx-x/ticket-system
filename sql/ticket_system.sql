@@ -33,7 +33,24 @@ INSERT INTO `ticket_tier` (`event_id`, `tier_name`, `price`, `total_stock`, `ava
 VALUES (1, '内场 VIP 区', 2580.00, 500, 500),
        (1, '看台 A 区', 1280.00, 2000, 2000);
 
--- 3. 票务订单表
+-- 3. 用户表
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '用户主键ID',
+  `username` varchar(64) NOT NULL COMMENT '用户名',
+  `password` varchar(128) NOT NULL COMMENT '密码，当前阶段先明文存储，后续会升级为加密存储',
+  `nickname` varchar(64) DEFAULT NULL COMMENT '用户昵称',
+  `phone` varchar(32) DEFAULT NULL COMMENT '手机号',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+
+INSERT INTO `user` (`username`, `password`, `nickname`, `phone`)
+VALUES ('demo', '123456', '演示用户', '13800000000');
+
+-- 4. 票务订单表
 DROP TABLE IF EXISTS `ticket_order`;
 CREATE TABLE `ticket_order` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '订单主键ID',
