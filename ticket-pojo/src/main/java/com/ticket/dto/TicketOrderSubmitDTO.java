@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TicketOrderSubmitDTO {
 
-    // 下单用户 ID
+    // 下单用户 ID 已不再信任前端传值，服务端会从登录上下文读取当前用户。
     private Long userId;
 
     // 演出活动 ID

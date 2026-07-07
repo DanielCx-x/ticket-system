@@ -1,5 +1,6 @@
 package com.ticket.service.impl;
 
+import com.ticket.context.BaseContext;
 import com.ticket.dto.TicketOrderSubmitDTO;
 import com.ticket.entity.TicketOrder;
 import com.ticket.entity.TicketTier;
@@ -13,6 +14,10 @@ import com.ticket.vo.OrderSubmitVO;
 import com.ticket.vo.OrderDetailVO;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +41,8 @@ public class TicketOrderServiceImpl implements TicketOrderService {
     @Override
     @Transactional
     public OrderSubmitVO submit(TicketOrderSubmitDTO ticketOrderSubmitDTO) {
+        Long currentUserId = getCurrentUserId();
+
         if (ticketOrderSubmitDTO.getTicketCount() == null || ticketOrderSubmitDTO.getTicketCount() <= 0) {
             throw new BaseException("购票数量必须大于 0");
         }
@@ -57,13 +64,13 @@ public class TicketOrderServiceImpl implements TicketOrderService {
         BigDecimal amount = ticketTier.getPrice()
                 .multiply(BigDecimal.valueOf(ticketOrderSubmitDTO.getTicketCount()));
 
-        String orderNo = String.valueOf(System.currentTimeMillis()); // 暂时方案
+        String orderNo = generateOrderNo(currentUserId);
 
         LocalDateTime now = LocalDateTime.now();
 
         TicketOrder ticketOrder = TicketOrder.builder()
                 .orderNo(orderNo)
-                .userId(ticketOrderSubmitDTO.getUserId())
+                .userId(currentUserId)
                 .eventId(ticketTier.getEventId())
                 .ticketTierId(ticketOrderSubmitDTO.getTicketTierId())
                 .ticketCount(ticketOrderSubmitDTO.getTicketCount())
@@ -84,11 +91,50 @@ public class TicketOrderServiceImpl implements TicketOrderService {
 
     @Override
     public OrderDetailVO getByOrderNo(String orderNo) {
+        Long currentUserId = getCurrentUserId();
         TicketOrder ticketOrder = ticketOrderMapper.getByOrderNo(orderNo);
         if (ticketOrder == null) {
             throw new BaseException("订单不存在");
         }
 
+        if (!ticketOrder.getUserId().equals(currentUserId)) {
+            throw new BaseException("无权查看该订单");
+        }
+
+        return toOrderDetailVO(ticketOrder);
+    }
+
+    @Override
+    public List<OrderDetailVO> listCurrentUserOrders() {
+        Long currentUserId = getCurrentUserId();
+        
+        List<TicketOrder> ticketOrders = ticketOrderMapper.listByUserId(currentUserId);
+        
+        List<OrderDetailVO> result = new ArrayList<>();
+        for (TicketOrder ticketOrder : ticketOrders) {
+            OrderDetailVO orderDetailVO = toOrderDetailVO(ticketOrder);
+            result.add(orderDetailVO);
+        }
+        return result;
+        //return ticketOrderMapper.listByUserId(currentUserId).stream()
+            //.map(this::toOrderDetailVO)
+            //.collect(Collectors.toList());
+    }
+
+    private Long getCurrentUserId() {
+        Long currentUserId = BaseContext.getCurrentId();
+        if (currentUserId == null) {
+            throw new BaseException("用户未登录");
+        }
+        return currentUserId;
+    }
+
+    private String generateOrderNo(Long userId) {
+        String randomPart = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        return "T" + System.currentTimeMillis() + userId + randomPart;
+    }
+
+    private OrderDetailVO toOrderDetailVO(TicketOrder ticketOrder) {
         return OrderDetailVO.builder()
             .orderNo(ticketOrder.getOrderNo())
             .userId(ticketOrder.getUserId())

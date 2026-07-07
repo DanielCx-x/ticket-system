@@ -5,6 +5,7 @@ import com.ticket.result.Result;
 import com.ticket.service.TicketOrderService;
 import com.ticket.vo.OrderDetailVO;
 import com.ticket.vo.OrderSubmitVO;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,5 +28,10 @@ public class OrderController {
     @GetMapping("/{orderNo}")
     public Result<OrderDetailVO> getByOrderNo(@PathVariable String orderNo) {
         return Result.success(ticketOrderService.getByOrderNo(orderNo));
+    }
+
+    @GetMapping
+    public Result<List<OrderDetailVO>> listCurrentUserOrders() {
+        return Result.success(ticketOrderService.listCurrentUserOrders());
     }
 }

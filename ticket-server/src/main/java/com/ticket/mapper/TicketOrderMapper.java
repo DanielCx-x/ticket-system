@@ -1,6 +1,7 @@
 package com.ticket.mapper;
 
 import com.ticket.entity.TicketOrder;
+import java.util.List;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -20,4 +21,8 @@ public interface TicketOrderMapper {
     @Select("select id, order_no, user_id, event_id, ticket_tier_id, ticket_count, amount, status, create_time, update_time " +
         "from ticket_order where order_no = #{orderNo}")
     TicketOrder getByOrderNo(String orderNo);
+
+    @Select("select id, order_no, user_id, event_id, ticket_tier_id, ticket_count, amount, status, create_time, update_time " +
+        "from ticket_order where user_id = #{userId} order by create_time desc")
+    List<TicketOrder> listByUserId(Long userId);
 }
