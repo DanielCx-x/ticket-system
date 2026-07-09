@@ -105,6 +105,40 @@ public class TicketOrderServiceImpl implements TicketOrderService {
     }
 
     @Override
+    @Transactional
+    public void cancelByOrderNo(String orderNo){
+        Long currentUserId = getCurrentUserId();
+
+        TicketOrder ticketOrder = ticketOrderMapper.getByOrderNo(orderNo);
+        if (ticketOrder == null) {
+            throw new BaseException("订单不存在");
+        }
+
+        if (!ticketOrder.getUserId().equals(currentUserId)) {
+            throw new BaseException("无权取消该订单");
+        }
+
+        if (ticketOrder.getStatus() != OrderStateEnum.CONFIRMED) {
+            throw new BaseException("当前订单状态不允许取消");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        int rows = ticketOrderMapper.updateStatus(
+            orderNo,
+            OrderStateEnum.CONFIRMED,
+            OrderStateEnum.CANCELLED,
+            now
+        );
+
+        if (rows == 0) {
+            throw new BaseException("订单状态已变化，请刷新后重试");
+        }
+
+        ticketTierMapper.increaseStock(ticketOrder.getTicketTierId(), ticketOrder.getTicketCount());
+    }
+
+    @Override
     public List<OrderDetailVO> listCurrentUserOrders() {
         Long currentUserId = getCurrentUserId();
         

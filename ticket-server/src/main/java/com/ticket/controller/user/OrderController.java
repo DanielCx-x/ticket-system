@@ -29,6 +29,12 @@ public class OrderController {
     public Result<OrderDetailVO> getByOrderNo(@PathVariable String orderNo) {
         return Result.success(ticketOrderService.getByOrderNo(orderNo));
     }
+    
+    @DeleteMapping("/{orderNo}")
+    public Result<Void> cancel(@PathVariable String orderNo) {
+        ticketOrderService.cancelByOrderNo(orderNo);
+        return Result.success();
+    }
 
     @GetMapping
     public Result<List<OrderDetailVO>> listCurrentUserOrders() {

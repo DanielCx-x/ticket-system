@@ -1,10 +1,10 @@
 package com.ticket.mapper;
 
 import com.ticket.entity.TicketTier;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import java.util.List;
 
 
 @Mapper
@@ -31,4 +31,12 @@ public interface TicketTierMapper {
             "set available_stock = available_stock - #{count} " +
             "where id = #{id} and available_stock >= #{count}")
     int deductStock(Long id, Integer count);
+
+    /*
+     * 回补库存
+     */
+    @Update("update ticket_tier " +
+            "set available_stock = available_stock + #{count} " +
+            "where id = #{id}")
+    int increaseStock(Long id, Integer count);
 }

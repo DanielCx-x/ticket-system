@@ -14,5 +14,7 @@ public interface TicketOrderService {
 
     OrderDetailVO getByOrderNo(String orderNo);
 
+    void cancelByOrderNo(String orderNo);
+
     List<OrderDetailVO> listCurrentUserOrders();
 }
