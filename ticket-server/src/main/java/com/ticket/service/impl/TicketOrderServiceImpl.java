@@ -135,7 +135,14 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw new BaseException("订单状态已变化，请刷新后重试");
         }
 
-        ticketTierMapper.increaseStock(ticketOrder.getTicketTierId(), ticketOrder.getTicketCount());
+        int stockRows = ticketTierMapper.increaseStock(
+            ticketOrder.getTicketTierId(),
+            ticketOrder.getTicketCount()
+        );
+
+        if (stockRows == 0) {
+            throw new BaseException("库存恢复失败");
+        }
     }
 
     @Override
