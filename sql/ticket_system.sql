@@ -69,3 +69,22 @@ CREATE TABLE `ticket_order` (
   KEY `idx_event_id` (`event_id`),
   KEY `idx_ticket_tier_id` (`ticket_tier_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='票务订单表';
+
+-- 5. 支付记录表
+DROP TABLE IF EXISTS `payment_record`;
+CREATE TABLE `payment_record` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '支付记录ID',
+  `payment_no` varchar(64) NOT NULL COMMENT '支付流水号',
+  `order_no` varchar(64) NOT NULL COMMENT '订单号',
+  `user_id` bigint NOT NULL COMMENT '支付用户ID',
+  `amount` decimal(10,2) NOT NULL COMMENT '支付金额',
+  `status` varchar(32) NOT NULL COMMENT '支付状态',
+  `pay_time` datetime DEFAULT NULL COMMENT '支付成功时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+      ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payment_no` (`payment_no`),
+  UNIQUE KEY `uk_order_no` (`order_no`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付记录表';
