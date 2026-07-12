@@ -1,7 +1,7 @@
 package com.ticket.mapper;
 
 import com.ticket.entity.TicketOrder;
-import com.ticket.enums.OrderStateEnum;
+import com.ticket.enums.OrderStatusEnum;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,7 +29,7 @@ public interface TicketOrderMapper {
     @Update("update ticket_order " +
             "set status = #{status}, update_time = #{updateTime} " +
             "where order_no = #{orderNo} and status = #{oldStatus}")
-    int updateStatus(String orderNo, OrderStateEnum oldStatus, OrderStateEnum status, LocalDateTime updateTime);
+    int updateStatus(String orderNo, OrderStatusEnum oldStatus, OrderStatusEnum status, LocalDateTime updateTime);
 
     @Select("select id, order_no, user_id, event_id, ticket_tier_id, ticket_count, amount, status, create_time, update_time " +
             "from ticket_order where user_id = #{userId} order by create_time desc")

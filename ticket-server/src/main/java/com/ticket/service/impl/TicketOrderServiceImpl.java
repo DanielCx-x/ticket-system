@@ -4,7 +4,7 @@ import com.ticket.context.BaseContext;
 import com.ticket.dto.TicketOrderSubmitDTO;
 import com.ticket.entity.TicketOrder;
 import com.ticket.entity.TicketTier;
-import com.ticket.enums.OrderStateEnum;
+import com.ticket.enums.OrderStatusEnum;
 import com.ticket.exception.BaseException;
 import com.ticket.exception.StockNotEnoughException;
 import com.ticket.mapper.TicketOrderMapper;
@@ -75,7 +75,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
                 .ticketTierId(ticketOrderSubmitDTO.getTicketTierId())
                 .ticketCount(ticketOrderSubmitDTO.getTicketCount())
                 .amount(amount)
-                .status(OrderStateEnum.CONFIRMED)
+                .status(OrderStatusEnum.CONFIRMED)
                 .createTime(now)
                 .updateTime(now)
                 .build();
@@ -84,7 +84,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
 
         return OrderSubmitVO.builder()
                 .orderNo(orderNo)
-                .orderStatus(OrderStateEnum.CONFIRMED.name())
+                .orderStatus(OrderStatusEnum.CONFIRMED.name())
                 .amount(amount)
                 .build();
     }
@@ -118,7 +118,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw new BaseException("无权取消该订单");
         }
 
-        if (ticketOrder.getStatus() != OrderStateEnum.CONFIRMED) {
+        if (ticketOrder.getStatus() != OrderStatusEnum.CONFIRMED) {
             throw new BaseException("当前订单状态不允许取消");
         }
 
@@ -126,8 +126,8 @@ public class TicketOrderServiceImpl implements TicketOrderService {
 
         int rows = ticketOrderMapper.updateStatus(
             orderNo,
-            OrderStateEnum.CONFIRMED,
-            OrderStateEnum.CANCELLED,
+            OrderStatusEnum.CONFIRMED,
+            OrderStatusEnum.CANCELLED,
             now
         );
 

@@ -1,6 +1,6 @@
 package com.ticket.entity;
 
-import com.ticket.enums.OrderStateEnum;
+import com.ticket.enums.OrderStatusEnum;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -39,7 +39,7 @@ public class TicketOrder {
     private BigDecimal amount;
 
     // 订单状态
-    private OrderStateEnum status;
+    private OrderStatusEnum status;
 
     // 创建时间
     private LocalDateTime createTime;

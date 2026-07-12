@@ -3,7 +3,7 @@ package com.ticket.service.impl;
 import com.ticket.context.BaseContext;
 import com.ticket.entity.PaymentRecord;
 import com.ticket.entity.TicketOrder;
-import com.ticket.enums.OrderStateEnum;
+import com.ticket.enums.OrderStatusEnum;
 import com.ticket.enums.PaymentStatusEnum;
 import com.ticket.exception.BaseException;
 import com.ticket.mapper.PaymentRecordMapper;
@@ -36,7 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
             throw new BaseException("无权支付该订单");
         }
 
-        if (ticketOrder.getStatus() != OrderStateEnum.CONFIRMED) {
+        if (ticketOrder.getStatus() != OrderStatusEnum.CONFIRMED) {
             throw new BaseException("当前订单状态不允许支付");
         }
 
@@ -62,8 +62,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         int rows = ticketOrderMapper.updateStatus(
                 orderNo,
-                OrderStateEnum.CONFIRMED,
-                OrderStateEnum.PAID,
+                OrderStatusEnum.CONFIRMED,
+                OrderStatusEnum.PAID,
                 now
         );
 
