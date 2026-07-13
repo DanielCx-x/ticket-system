@@ -10,6 +10,7 @@ import com.ticket.exception.StockNotEnoughException;
 import com.ticket.mapper.TicketOrderMapper;
 import com.ticket.mapper.TicketTierMapper;
 import com.ticket.service.TicketOrderService;
+import com.ticket.service.OrderStatusProcessor;
 import com.ticket.vo.OrderSubmitVO;
 import com.ticket.vo.OrderDetailVO;
 import java.math.BigDecimal;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+// import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
 
     private final TicketTierMapper ticketTierMapper;
     private final TicketOrderMapper ticketOrderMapper;
+    private final OrderStatusProcessor orderStatusProcessor;
 
     /**
      * 提交订单。
@@ -118,7 +120,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw new BaseException("无权取消该订单");
         }
 
-        if (ticketOrder.getStatus() != OrderStatusEnum.CONFIRMED) {
+        if (!orderStatusProcessor.canTransit(ticketOrder.getStatus(), OrderStatusEnum.CANCELLED)) {
             throw new BaseException("当前订单状态不允许取消");
         }
 
@@ -126,7 +128,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
 
         int rows = ticketOrderMapper.updateStatus(
             orderNo,
-            OrderStatusEnum.CONFIRMED,
+            ticketOrder.getStatus(),
             OrderStatusEnum.CANCELLED,
             now
         );

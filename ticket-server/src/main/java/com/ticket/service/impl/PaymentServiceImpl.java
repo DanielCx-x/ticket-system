@@ -9,6 +9,7 @@ import com.ticket.exception.BaseException;
 import com.ticket.mapper.PaymentRecordMapper;
 import com.ticket.mapper.TicketOrderMapper;
 import com.ticket.service.PaymentService;
+import com.ticket.service.OrderStatusProcessor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRecordMapper paymentRecordMapper;
     private final TicketOrderMapper ticketOrderMapper;
+    private final OrderStatusProcessor orderStatusProcessor;
 
     @Override
     @Transactional
@@ -36,7 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
             throw new BaseException("无权支付该订单");
         }
 
-        if (ticketOrder.getStatus() != OrderStatusEnum.CONFIRMED) {
+        if (!orderStatusProcessor.canTransit(ticketOrder.getStatus(), OrderStatusEnum.PAID)) {
             throw new BaseException("当前订单状态不允许支付");
         }
 
@@ -62,7 +64,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         int rows = ticketOrderMapper.updateStatus(
                 orderNo,
-                OrderStatusEnum.CONFIRMED,
+                ticketOrder.getStatus(),
                 OrderStatusEnum.PAID,
                 now
         );
