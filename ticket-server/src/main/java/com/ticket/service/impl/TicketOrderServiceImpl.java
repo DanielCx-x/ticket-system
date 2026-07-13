@@ -13,11 +13,11 @@ import com.ticket.service.TicketOrderService;
 import com.ticket.service.OrderStatusProcessor;
 import com.ticket.vo.OrderSubmitVO;
 import com.ticket.vo.OrderDetailVO;
+import com.ticket.utils.NoGenerator;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 // import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -66,7 +66,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
         BigDecimal amount = ticketTier.getPrice()
                 .multiply(BigDecimal.valueOf(ticketOrderSubmitDTO.getTicketCount()));
 
-        String orderNo = generateOrderNo(currentUserId);
+        String orderNo = NoGenerator.generateOrderNo(currentUserId);
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -170,11 +170,6 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw new BaseException("用户未登录");
         }
         return currentUserId;
-    }
-
-    private String generateOrderNo(Long userId) {
-        String randomPart = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
-        return "T" + System.currentTimeMillis() + userId + randomPart;
     }
 
     private OrderDetailVO toOrderDetailVO(TicketOrder ticketOrder) {

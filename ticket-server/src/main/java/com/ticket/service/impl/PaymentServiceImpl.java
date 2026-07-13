@@ -10,8 +10,8 @@ import com.ticket.mapper.PaymentRecordMapper;
 import com.ticket.mapper.TicketOrderMapper;
 import com.ticket.service.PaymentService;
 import com.ticket.service.OrderStatusProcessor;
+import com.ticket.utils.NoGenerator;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +50,7 @@ public class PaymentServiceImpl implements PaymentService {
         LocalDateTime now = LocalDateTime.now();
 
         PaymentRecord paymentRecord = PaymentRecord.builder()
-                .paymentNo(generatePaymentNo())
+                .paymentNo(NoGenerator.generatePaymentNo())
                 .orderNo(orderNo)
                 .userId(currentUserId)
                 .amount(ticketOrder.getAmount())
@@ -80,10 +80,5 @@ public class PaymentServiceImpl implements PaymentService {
             throw new BaseException("用户未登录");
         }
         return currentUserId;
-    }
-
-    private String generatePaymentNo() {
-        String randomPart = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
-        return "P" + System.currentTimeMillis() + randomPart;
     }
 }
