@@ -50,7 +50,23 @@ CREATE TABLE `user` (
 INSERT INTO `user` (`username`, `password`, `nickname`, `phone`)
 VALUES ('demo', '123456', '演示用户', '13800000000');
 
--- 4. 票务订单表
+-- 4. 管理员表
+DROP TABLE IF EXISTS `admin`;
+CREATE TABLE `admin` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '管理员主键ID',
+  `username` varchar(64) NOT NULL COMMENT '管理员用户名',
+  `password` varchar(128) NOT NULL COMMENT '密码，当前阶段先明文存储，后续会升级为加密存储',
+  `name` varchar(64) DEFAULT NULL COMMENT '管理员姓名',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理员表';
+
+INSERT INTO `admin` (`username`, `password`, `name`)
+VALUES ('admin', '123456', '系统管理员');
+
+-- 5. 票务订单表
 DROP TABLE IF EXISTS `ticket_order`;
 CREATE TABLE `ticket_order` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '订单主键ID',
@@ -70,7 +86,7 @@ CREATE TABLE `ticket_order` (
   KEY `idx_ticket_tier_id` (`ticket_tier_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='票务订单表';
 
--- 5. 支付记录表
+-- 6. 支付记录表
 DROP TABLE IF EXISTS `payment_record`;
 CREATE TABLE `payment_record` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '支付记录ID',
