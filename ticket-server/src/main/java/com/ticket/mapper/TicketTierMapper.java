@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Param;
 
 
 @Mapper
@@ -39,4 +41,21 @@ public interface TicketTierMapper {
             "set available_stock = available_stock + #{count} " +
             "where id = #{id}")
     int increaseStock(Long id, Integer count);
+
+    /**
+	 * 新增票档
+ 	 */
+	@Insert("insert into ticket_tier " +
+			"(event_id, tier_name, price, total_stock, available_stock, version) " +
+			"values " +
+			"(#{eventId}, #{tierName}, #{price}, #{totalStock}, #{availableStock}, #{version})")
+	void insert(TicketTier ticketTier);
+
+	/**
+ 	 * 管理端修改票档库存
+ 	 */
+	@Update("update ticket_tier " +
+			"set total_stock = #{totalStock}, available_stock = #{totalStock} " +
+			"where id = #{id}")
+	int updateStock(@Param("id") Long id, @Param("totalStock") Integer totalStock);
 }
