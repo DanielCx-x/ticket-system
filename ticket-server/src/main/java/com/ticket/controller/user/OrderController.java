@@ -27,7 +27,7 @@ public class OrderController {
 
     @GetMapping("/{orderNo}")
     public Result<OrderDetailVO> getByOrderNo(@PathVariable String orderNo) {
-        return Result.success(ticketOrderService.getByOrderNo(orderNo));
+        return Result.success(ticketOrderService.getUserOrderDetail(orderNo));
     }
     
     @DeleteMapping("/{orderNo}")

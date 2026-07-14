@@ -92,7 +92,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
     }
 
     @Override
-    public OrderDetailVO getByOrderNo(String orderNo) {
+    public OrderDetailVO getUserOrderDetail(String orderNo) {
         Long currentUserId = getCurrentUserId();
         TicketOrder ticketOrder = ticketOrderMapper.getByOrderNo(orderNo);
         if (ticketOrder == null) {
@@ -101,6 +101,16 @@ public class TicketOrderServiceImpl implements TicketOrderService {
 
         if (!ticketOrder.getUserId().equals(currentUserId)) {
             throw new BaseException("无权查看该订单");
+        }
+
+        return toOrderDetailVO(ticketOrder);
+    }
+
+    @Override
+    public OrderDetailVO getAdminOrderDetail(String orderNo) {
+        TicketOrder ticketOrder = ticketOrderMapper.getByOrderNo(orderNo);
+        if (ticketOrder == null) {
+            throw new BaseException("订单不存在");
         }
 
         return toOrderDetailVO(ticketOrder);
@@ -162,6 +172,18 @@ public class TicketOrderServiceImpl implements TicketOrderService {
         //return ticketOrderMapper.listByUserId(currentUserId).stream()
             //.map(this::toOrderDetailVO)
             //.collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderDetailVO> listAllOrders() {
+        List<TicketOrder> ticketOrders = ticketOrderMapper.listAll();
+
+        List<OrderDetailVO> result = new ArrayList<>();
+        for (TicketOrder ticketOrder : ticketOrders) {
+            OrderDetailVO orderDetailVO = toOrderDetailVO(ticketOrder);
+            result.add(orderDetailVO);
+        }
+        return result;
     }
 
     private Long getCurrentUserId() {
