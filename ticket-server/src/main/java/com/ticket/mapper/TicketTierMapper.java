@@ -26,6 +26,13 @@ public interface TicketTierMapper {
             "from ticket_tier where event_id = #{eventId} order by price desc")
     List<TicketTier> listByEventId(Long eventId);
 
+	/**
+ 	 * 查询全部票档
+ 	 */
+	@Select("select id, event_id, tier_name, price, total_stock, available_stock, version " +
+        	"from ticket_tier")
+	List<TicketTier> listAll();
+
     /**
      * 扣减库存
      */
