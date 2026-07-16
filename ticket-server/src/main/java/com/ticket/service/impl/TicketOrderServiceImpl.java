@@ -11,6 +11,7 @@ import com.ticket.mapper.TicketOrderMapper;
 import com.ticket.mapper.TicketTierMapper;
 import com.ticket.service.TicketOrderService;
 import com.ticket.service.OrderStatusProcessor;
+import com.ticket.service.StockRedisService;
 import com.ticket.vo.OrderSubmitVO;
 import com.ticket.vo.OrderDetailVO;
 import com.ticket.utils.NoGenerator;
@@ -30,6 +31,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
     private final TicketTierMapper ticketTierMapper;
     private final TicketOrderMapper ticketOrderMapper;
     private final OrderStatusProcessor orderStatusProcessor;
+    private final StockRedisService stockRedisService;
 
     /**
      * 提交订单。
@@ -58,8 +60,16 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw new BaseException("票档与活动信息不一致");
         }
 
-        int rows = ticketTierMapper.deductStock(ticketTier.getId(), ticketOrderSubmitDTO.getTicketCount());
-        if (rows == 0) {
+        Long deductResult = stockRedisService.deductStock(
+            ticketTier.getId(),
+            ticketOrderSubmitDTO.getTicketCount()
+        );
+
+        if (Long.valueOf(-1).equals(deductResult)) {
+            throw new BaseException("库存未初始化");
+        }
+
+        if (Long.valueOf(0).equals(deductResult)) {
             throw new StockNotEnoughException("库存不足");
         }
 
@@ -82,7 +92,15 @@ public class TicketOrderServiceImpl implements TicketOrderService {
                 .updateTime(now)
                 .build();
 
-        ticketOrderMapper.insert(ticketOrder);
+        try {
+            ticketOrderMapper.insert(ticketOrder);
+        } catch (RuntimeException e) {
+            stockRedisService.rollbackStock(
+                ticketTier.getId(),
+                ticketOrderSubmitDTO.getTicketCount()
+            );
+            throw e;
+        }
 
         return OrderSubmitVO.builder()
                 .orderNo(orderNo)
@@ -147,14 +165,10 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw new BaseException("订单状态已变化，请刷新后重试");
         }
 
-        int stockRows = ticketTierMapper.increaseStock(
+        stockRedisService.rollbackStock(
             ticketOrder.getTicketTierId(),
             ticketOrder.getTicketCount()
         );
-
-        if (stockRows == 0) {
-            throw new BaseException("库存恢复失败");
-        }
     }
 
     @Override
