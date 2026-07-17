@@ -2,6 +2,7 @@ package com.ticket.service.impl;
 
 import com.ticket.context.BaseContext;
 import com.ticket.dto.TicketOrderSubmitDTO;
+import com.ticket.dto.OrderCreateMessageDTO;
 import com.ticket.entity.TicketOrder;
 import com.ticket.entity.TicketTier;
 import com.ticket.enums.OrderStatusEnum;
@@ -15,6 +16,7 @@ import com.ticket.service.StockRedisService;
 import com.ticket.vo.OrderSubmitVO;
 import com.ticket.vo.OrderDetailVO;
 import com.ticket.utils.NoGenerator;
+import com.ticket.mq.OrderMessageProducer;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
     private final TicketOrderMapper ticketOrderMapper;
     private final OrderStatusProcessor orderStatusProcessor;
     private final StockRedisService stockRedisService;
+    private final OrderMessageProducer orderMessageProducer;
 
     /**
      * 提交订单。
@@ -80,6 +83,15 @@ public class TicketOrderServiceImpl implements TicketOrderService {
 
         LocalDateTime now = LocalDateTime.now();
 
+        OrderCreateMessageDTO messageDTO = OrderCreateMessageDTO.builder()
+                .orderNo(orderNo)
+                .userId(currentUserId)
+                .eventId(ticketTier.getEventId())
+                .ticketTierId(ticketOrderSubmitDTO.getTicketTierId())
+                .ticketCount(ticketOrderSubmitDTO.getTicketCount())
+                .amount(amount)
+                .build();
+
         TicketOrder ticketOrder = TicketOrder.builder()
                 .orderNo(orderNo)
                 .userId(currentUserId)
@@ -87,7 +99,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
                 .ticketTierId(ticketOrderSubmitDTO.getTicketTierId())
                 .ticketCount(ticketOrderSubmitDTO.getTicketCount())
                 .amount(amount)
-                .status(OrderStatusEnum.CONFIRMED)
+                .status(OrderStatusEnum.QUEUED)
                 .createTime(now)
                 .updateTime(now)
                 .build();
@@ -102,9 +114,11 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw e;
         }
 
+        orderMessageProducer.sendCreateOrderMessage(messageDTO);
+
         return OrderSubmitVO.builder()
                 .orderNo(orderNo)
-                .orderStatus(OrderStatusEnum.CONFIRMED.name())
+                .orderStatus(OrderStatusEnum.QUEUED.name())
                 .amount(amount)
                 .build();
     }
