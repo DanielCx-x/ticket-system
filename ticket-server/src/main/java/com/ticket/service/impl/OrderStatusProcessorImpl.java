@@ -18,7 +18,8 @@ public class OrderStatusProcessorImpl implements OrderStatusProcessor {
     * 当前允许的订单状态流转规则：
     *
     * INIT      -> QUEUED / CONFIRMED / FAILED
-    * QUEUED    -> CONFIRMED / FAILED
+    * QUEUED    -> PROCESSING / FAILED
+    * PROCESSING-> CONFIRMED / FAILED
     * CONFIRMED -> PAID / CANCELLED
     * PAID      -> 不允许继续流转
     * FAILED    -> 不允许继续流转
@@ -29,6 +30,9 @@ public class OrderStatusProcessorImpl implements OrderStatusProcessor {
                 EnumSet.of(OrderStatusEnum.QUEUED, OrderStatusEnum.CONFIRMED, OrderStatusEnum.FAILED));
 
         allowedTransitions.put(OrderStatusEnum.QUEUED,
+                EnumSet.of(OrderStatusEnum.PROCESSING, OrderStatusEnum.FAILED));
+
+        allowedTransitions.put(OrderStatusEnum.PROCESSING,
                 EnumSet.of(OrderStatusEnum.CONFIRMED, OrderStatusEnum.FAILED));
 
         allowedTransitions.put(OrderStatusEnum.CONFIRMED,

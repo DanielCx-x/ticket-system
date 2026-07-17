@@ -7,6 +7,7 @@ package com.ticket.enums;
 public enum OrderStatusEnum {
     INIT, // 初始状态，订单对象刚创建但还未进入正式处理流程
     QUEUED, // 已进入异步处理队列
+    PROCESSING, // 表示MQ抢到处理权的中间状态
     CONFIRMED, // 已确认，通常表示真实落库与库存扣减成功
     PAID, // 已支付
     FAILED, // 处理失败
