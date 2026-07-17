@@ -17,6 +17,6 @@ public class OrderMessageProducer {
     private final KafkaTemplate<String, OrderCreateMessageDTO> kafkaTemplate;
 
     public void sendCreateOrderMessage(OrderCreateMessageDTO messageDTO) {
-        kafkaTemplate.send(ORDER_CREATE_TOPIC, messageDTO.getOrderNo(), messageDTO);
+        kafkaTemplate.send(ORDER_CREATE_TOPIC, messageDTO.getOrderNo(), messageDTO).join();
     }
 }

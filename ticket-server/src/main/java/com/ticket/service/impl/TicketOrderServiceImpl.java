@@ -54,6 +54,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw new BaseException("购票数量必须大于 0");
         }
 
+        // 查询票档
         TicketTier ticketTier = ticketTierMapper.getById(ticketOrderSubmitDTO.getTicketTierId());
         if (ticketTier == null) {
             throw new BaseException("票档不存在");
@@ -63,6 +64,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw new BaseException("票档与活动信息不一致");
         }
 
+        // Redis Lua 预扣库存
         Long deductResult = stockRedisService.deductStock(
             ticketTier.getId(),
             ticketOrderSubmitDTO.getTicketCount()
@@ -76,6 +78,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw new StockNotEnoughException("库存不足");
         }
 
+        // 计算订单金额
         BigDecimal amount = ticketTier.getPrice()
                 .multiply(BigDecimal.valueOf(ticketOrderSubmitDTO.getTicketCount()));
 
@@ -83,6 +86,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
 
         LocalDateTime now = LocalDateTime.now();
 
+        // 构造异步创建订单消息，供 Kafka Consumer 后续确认订单使用
         OrderCreateMessageDTO messageDTO = OrderCreateMessageDTO.builder()
                 .orderNo(orderNo)
                 .userId(currentUserId)
@@ -92,6 +96,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
                 .amount(amount)
                 .build();
 
+        // 先落一条 QUEUED 订单，表示订单已进入异步处理队列
         TicketOrder ticketOrder = TicketOrder.builder()
                 .orderNo(orderNo)
                 .userId(currentUserId)
@@ -107,6 +112,7 @@ public class TicketOrderServiceImpl implements TicketOrderService {
         try {
             ticketOrderMapper.insert(ticketOrder);
         } catch (RuntimeException e) {
+            // MySQL 订单落库失败，回滚 Redis 预扣库存
             stockRedisService.rollbackStock(
                 ticketTier.getId(),
                 ticketOrderSubmitDTO.getTicketCount()
@@ -114,7 +120,16 @@ public class TicketOrderServiceImpl implements TicketOrderService {
             throw e;
         }
 
-        orderMessageProducer.sendCreateOrderMessage(messageDTO);
+        try {
+            orderMessageProducer.sendCreateOrderMessage(messageDTO);
+        } catch (RuntimeException e) {
+            // Kafka 消息发送失败，回滚 Redis；当前事务会回滚 QUEUED 订单
+            stockRedisService.rollbackStock(
+                ticketTier.getId(),
+                ticketOrderSubmitDTO.getTicketCount()
+            );
+            throw new BaseException("订单消息发送失败");
+        }
 
         return OrderSubmitVO.builder()
                 .orderNo(orderNo)
