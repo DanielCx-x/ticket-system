@@ -44,4 +44,12 @@ public interface TicketOrderMapper {
 	@Select("select id, order_no, user_id, event_id, ticket_tier_id, ticket_count, amount, status, create_time, update_time " +
     		"from ticket_order order by create_time desc")
 	List<TicketOrder> listAll();
+
+	@Select("select id, order_no, user_id, event_id, ticket_tier_id, ticket_count, amount, status, create_time, update_time " +
+        	"from ticket_order " +
+        	"where status in ('QUEUED', 'PROCESSING', 'STOCK_DEDUCTED') and update_time < #{timeoutTime} " +
+        	"order by update_time asc " +
+        	"limit #{limit}")
+	List<TicketOrder> listTimeoutProcessingOrders(@Param("timeoutTime") LocalDateTime timeoutTime,
+                                              	  @Param("limit") Integer limit);
 }

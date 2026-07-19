@@ -75,16 +75,27 @@ public class OrderMessageConsumer {
 
             return;
         }
-
-        int orderRows = ticketOrderMapper.updateStatus(
-                messageDTO.getOrderNo(),
-                OrderStatusEnum.PROCESSING,
-                OrderStatusEnum.CONFIRMED,
-                LocalDateTime.now()
+        
+        int stockDeductedRows = ticketOrderMapper.updateStatus(
+            messageDTO.getOrderNo(),
+            OrderStatusEnum.PROCESSING,
+            OrderStatusEnum.STOCK_DEDUCTED,
+            LocalDateTime.now()
         );
 
-        if (orderRows == 0) {
-            throw new BaseException("订单状态更新失败");
+        if (stockDeductedRows == 0) {
+            throw new BaseException("订单库存扣减状态更新失败");
+        }
+
+        int confirmedRows = ticketOrderMapper.updateStatus(
+            messageDTO.getOrderNo(),
+            OrderStatusEnum.STOCK_DEDUCTED,
+            OrderStatusEnum.CONFIRMED,
+            LocalDateTime.now()
+        );
+
+        if (confirmedRows == 0) {
+            throw new BaseException("订单确认状态更新失败");
         }
     }
 }

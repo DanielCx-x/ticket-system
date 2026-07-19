@@ -19,7 +19,8 @@ public class OrderStatusProcessorImpl implements OrderStatusProcessor {
     *
     * INIT      -> QUEUED / CONFIRMED / FAILED
     * QUEUED    -> PROCESSING / FAILED
-    * PROCESSING-> CONFIRMED / FAILED
+    * PROCESSING-> STOCK_DEDUCTED / FAILED
+    * STOCK_DEDUCTED -> CONFIRMED / FAILED
     * CONFIRMED -> PAID / CANCELLED
     * PAID      -> 不允许继续流转
     * FAILED    -> 不允许继续流转
@@ -33,6 +34,9 @@ public class OrderStatusProcessorImpl implements OrderStatusProcessor {
                 EnumSet.of(OrderStatusEnum.PROCESSING, OrderStatusEnum.FAILED));
 
         allowedTransitions.put(OrderStatusEnum.PROCESSING,
+                EnumSet.of(OrderStatusEnum.STOCK_DEDUCTED, OrderStatusEnum.FAILED));
+        
+        allowedTransitions.put(OrderStatusEnum.STOCK_DEDUCTED,
                 EnumSet.of(OrderStatusEnum.CONFIRMED, OrderStatusEnum.FAILED));
 
         allowedTransitions.put(OrderStatusEnum.CONFIRMED,
